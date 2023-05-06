@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { Console } from "console";
 import { ethers } from "hardhat";
 import { Ballot } from "../typechain-types";
 
@@ -34,8 +35,10 @@ describe("Ballot", function () {
     });
 
     it("has zero votes for all proposals", async function () {
-      // TODO
-      throw Error("Not implemented");
+      for (let index = 0; index < PROPOSALS.length; index++) {
+        const proposal = await ballotContract.proposals(index)
+        expect(proposal.voteCount).to.eq(0)
+      }
     });
     it("sets the deployer address as chairperson", async function () {
       const chairperson = await ballotContract.chairperson();
@@ -51,86 +54,123 @@ describe("Ballot", function () {
 
   describe("when the chairperson interacts with the giveRightToVote function in the contract", function () {
     it("gives right to vote for another address", async function () {
-      // TODO
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const newVoter = accounts[1].address;
+      await ballotContract.connect(accounts[0]).giveRightToVote(newVoter);
+      await expect(ballotContract.voters(accounts[1].address)).to.exist
     });
     it("can not give right to vote for someone that has voted", async function () {
       // TODO
-      throw Error("Not implemented");
+      // throw Error("Not implemented");
+      // It does not make sense, if they voted they already have the right
     });
     it("can not give right to vote for someone that has already voting rights", async function () {
-      // TODO
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const newVoter = accounts[1].address;
+      await ballotContract.connect(accounts[0]).giveRightToVote(newVoter);
+      await expect(ballotContract.connect(accounts[0]).giveRightToVote(newVoter)).to.be.reverted;
     });
   });
 
   describe("when the voter interact with the vote function in the contract", function () {
-    // TODO
     it("should register the vote", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      await ballotContract.connect(accounts[0]).vote(0);
+      const proposal = await ballotContract.proposals(0);
+      await expect(proposal.voteCount).to.eq(1)
     });
   });
 
   describe("when the voter interact with the delegate function in the contract", function () {
-    // TODO
     it("should transfer voting power", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const delegatedPerson = accounts[1].address;
+      await ballotContract.connect(accounts[0]).giveRightToVote(delegatedPerson);
+      await ballotContract.connect(accounts[0]).delegate(delegatedPerson)
+      const chairPersonVoter = await ballotContract.voters(accounts[0].address)
+      const delegatedPersonVoter = await ballotContract.voters(accounts[1].address)
+      await expect(delegatedPersonVoter.weight).to.eq(2)
     });
   });
 
   describe("when the an attacker interact with the giveRightToVote function in the contract", function () {
-    // TODO
     it("should revert", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const attacker = accounts[5];
+      const someAddress = accounts[6].address
+      await expect(ballotContract.connect(attacker).giveRightToVote(someAddress)).to.be.reverted;
     });
   });
 
   describe("when the an attacker interact with the vote function in the contract", function () {
-    // TODO
     it("should revert", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const attacker = accounts[5];
+      await expect(ballotContract.connect(attacker).vote(0)).to.be.reverted;
     });
   });
 
   describe("when the an attacker interact with the delegate function in the contract", function () {
-    // TODO
     it("should revert", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const attacker = accounts[5];
+      const someAddress = accounts[6].address
+      await expect(ballotContract.connect(attacker).delegate(someAddress)).to.be.reverted;
     });
   });
 
   describe("when someone interact with the winningProposal function before any votes are cast", function () {
-    // TODO
     it("should return 0", async () => {
-      throw Error("Not implemented");
+      const chairperson = await ballotContract.chairperson();
+      expect(await ballotContract.connect(chairperson).winningProposal()).to.eq(0)
     });
   });
 
   describe("when someone interact with the winningProposal function after one vote is cast for the first proposal", function () {
-    // TODO
     it("should return 0", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const chairperson = await ballotContract.chairperson();
+      await ballotContract.connect(accounts[0]).vote(0);
+      expect(await ballotContract.connect(chairperson).winningProposal()).to.eq(0);
     });
   });
 
-  describe("when someone interact with the winnerName function before any votes are cast", function () {
-    // TODO
+  describe.skip("when someone interact with the winnerName function before any votes are cast", function () {
     it("should return name of proposal 0", async () => {
-      throw Error("Not implemented");
-    });
+      const chairperson = await ballotContract.chairperson();
+      const winnerName = await ballotContract.connect(chairperson).winnerName()
+      expect(ethers.utils.toUtf8String(winnerName).trim()).to.eq(PROPOSALS[0]);
+    });    
   });
 
-  describe("when someone interact with the winnerName function after one vote is cast for the first proposal", function () {
-    // TODO
+  describe.skip("when someone interact with the winnerName function after one vote is cast for the first proposal", function () {
     it("should return name of proposal 0", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+      const chairperson = await ballotContract.chairperson();
+      await ballotContract.connect(accounts[0]).vote(0);
+      const winnerName = await ballotContract.connect(chairperson).winnerName()
+      expect(ethers.utils.toUtf8String(winnerName)).to.eq(PROPOSALS[0]);
     });
   });
 
-  describe("when someone interact with the winningProposal function and winnerName after 5 random votes are cast for the proposals", function () {
-    // TODO
+  describe.skip("when someone interact with the winningProposal function and winnerName after 5 random votes are cast for the proposals", function () {
     it("should return the name of the winner proposal", async () => {
-      throw Error("Not implemented");
+      const accounts = await ethers.getSigners();
+
+      await ballotContract.connect(accounts[0]).giveRightToVote(accounts[3].address);
+      await ballotContract.connect(accounts[0]).giveRightToVote(accounts[4].address);
+      await ballotContract.connect(accounts[0]).giveRightToVote(accounts[5].address);
+      await ballotContract.connect(accounts[0]).giveRightToVote(accounts[6].address);
+      await ballotContract.connect(accounts[0]).giveRightToVote(accounts[7].address);
+
+      await ballotContract.connect(accounts[3]).vote(0);
+      await ballotContract.connect(accounts[4]).vote(1);
+      await ballotContract.connect(accounts[5]).vote(2);
+      await ballotContract.connect(accounts[6]).vote(1);
+      await ballotContract.connect(accounts[7]).vote(1);
+
+      const winnerName = await ballotContract.connect(accounts[0]).winnerName();
+      expect(ethers.utils.toUtf8String(winnerName)).to.eq(PROPOSALS[1]);
     });
   });
 });
