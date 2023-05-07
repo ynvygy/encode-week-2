@@ -135,25 +135,25 @@ describe("Ballot", function () {
     });
   });
 
-  describe.skip("when someone interact with the winnerName function before any votes are cast", function () {
+  describe("when someone interact with the winnerName function before any votes are cast", function () {
     it("should return name of proposal 0", async () => {
       const chairperson = await ballotContract.chairperson();
       const winnerName = await ballotContract.connect(chairperson).winnerName()
-      expect(ethers.utils.toUtf8String(winnerName).trim()).to.eq(PROPOSALS[0]);
+      expect(ethers.utils.parseBytes32String(winnerName)).to.equal(PROPOSALS[0]);
     });    
   });
 
-  describe.skip("when someone interact with the winnerName function after one vote is cast for the first proposal", function () {
+  describe("when someone interact with the winnerName function after one vote is cast for the first proposal", function () {
     it("should return name of proposal 0", async () => {
       const accounts = await ethers.getSigners();
       const chairperson = await ballotContract.chairperson();
       await ballotContract.connect(accounts[0]).vote(0);
       const winnerName = await ballotContract.connect(chairperson).winnerName()
-      expect(ethers.utils.toUtf8String(winnerName)).to.eq(PROPOSALS[0]);
+      expect(ethers.utils.parseBytes32String(winnerName)).to.eq(PROPOSALS[0]);
     });
   });
 
-  describe.skip("when someone interact with the winningProposal function and winnerName after 5 random votes are cast for the proposals", function () {
+  describe("when someone interact with the winningProposal function and winnerName after 5 random votes are cast for the proposals", function () {
     it("should return the name of the winner proposal", async () => {
       const accounts = await ethers.getSigners();
 
@@ -170,7 +170,7 @@ describe("Ballot", function () {
       await ballotContract.connect(accounts[7]).vote(1);
 
       const winnerName = await ballotContract.connect(accounts[0]).winnerName();
-      expect(ethers.utils.toUtf8String(winnerName)).to.eq(PROPOSALS[1]);
+      expect(ethers.utils.parseBytes32String(winnerName)).to.eq(PROPOSALS[1]);
     });
   });
 });
