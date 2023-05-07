@@ -19,8 +19,8 @@ async function main() {
   const ballotContract = await ballotFactory.attach(BALLOT_CONTRACT_ADDRESS)
 
   const winnerName = await ballotContract.winnerName();
-  await delegateVoteTx.wait()
-  console.log(`The winner is ${winnerName}`)
+
+  console.log(`The winner is ${ethers.utils.parseBytes32String(winnerName)}`)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

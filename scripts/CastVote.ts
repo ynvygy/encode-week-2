@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const BALLOT_CONTRACT_ADDRESS = "0xB32e96965C609387d9E6e6612f6BbB3d85C59f5B"
-const PROPOSAL_ID = 0
+const PROPOSAL_ID = 1
 
 async function main() {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "");

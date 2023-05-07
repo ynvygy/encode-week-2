@@ -4,7 +4,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // the address that will be given the right to vote
-const ADDRESS = "0x73047EE0903e8A9A4c4D2448e56Bc89850D37e4A"
+const BALLOT_CONTRACT_ADDRESS = "0xB32e96965C609387d9E6e6612f6BbB3d85C59f5B"
+const ADDRESS = "0xC706045555E9302AA2c63B7Da55681369949Df90"
 
 async function main() {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "");
